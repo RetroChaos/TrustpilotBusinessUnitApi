@@ -4,6 +4,7 @@ namespace Trustpilot\Api\BusinessUnit;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Client
 {
@@ -12,30 +13,30 @@ class Client
     /**
      * @var string
      */
-    private $apiKey;
+    private string $apiKey;
 
     /**
      * @var GuzzleClientInterface
      */
-    private $guzzle;
+    private GuzzleClientInterface $guzzle;
 
-    /**
-     * @param string $apiKey
-     * @param GuzzleClientInterface $guzzle
-     */
-    public function __construct($apiKey, GuzzleClientInterface $guzzle = null)
+  /**
+   * @param string $apiKey
+   * @param GuzzleClientInterface|null $guzzle
+   */
+    public function __construct(string $apiKey, GuzzleClientInterface $guzzle = null)
     {
         $this->apiKey = $apiKey;
         $this->guzzle = (null !== $guzzle) ? $guzzle : new GuzzleClient();
     }
 
-    /**
-     * @param string $url
-     * @param array $form
-     * @return array
-     */
-    private function makeRequest($url, array $form = null)
-    {
+  /**
+   * @param string $url
+   * @param array|null $form
+   * @return array
+   * @throws GuzzleException
+   */
+    private function makeRequest(string $url, array $form = null): array {
         $options = ['query' => ['apikey' => $this->apiKey]];
 
         if (null !== $form) {
@@ -47,30 +48,31 @@ class Client
         return json_decode((string) $response->getBody(), true);
     }
 
-    /**
-     * @param string $name
-     * @return array
-     */
-    public function find($name)
-    {
+  /**
+   * @param string $name
+   * @return array
+   * @throws GuzzleException
+   */
+    public function find(string $name): array {
         return $this->makeRequest(self::ENDPOINT . '/find', ['name' => $name]);
     }
 
-    /**
-     * @param string $businessUnitId
-     * @return array
-     */
-    public function get($businessUnitId)
-    {
+  /**
+   * @param string $businessUnitId
+   * @return array
+   * @throws GuzzleException
+   */
+    public function get(string $businessUnitId): array {
         return $this->makeRequest(self::ENDPOINT . '/' . $businessUnitId);
     }
 
-    /**
-     * @param string $businessUnitId
-     * @return array
-     */
-    public function getReviews($businessUnitId, array $optionalParams = [])
-    {
+  /**
+   * @param string $businessUnitId
+   * @param array $optionalParams
+   * @return array
+   * @throws GuzzleException
+   */
+    public function getReviews(string $businessUnitId, array $optionalParams = []): array {
         return $this->makeRequest(self::ENDPOINT . '/' . $businessUnitId . '/reviews', $optionalParams);
     }
 }
